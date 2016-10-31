@@ -1,8 +1,10 @@
 #!/bin/sh
 
 NGINX_CONF=/etc/nginx/conf.d/default.conf
-if [ ! -z "DOMAIN" ];then
+if [ ! -z "$DOMAIN" ];then
     grep -q server_name $NGINX_CONF || sed -i -e "/root\s\+\/var\/www\/html/a \\\tserver_name $DOMAIN;" $NGINX_CONF
+else
+    grep -q server_name $NGINX_CONF || sed -i -e "/root\s\+\/var\/www\/html/a \\\tserver_name \$hostname;" $NGINX_CONF
 fi
 
 exec /usr/sbin/nginx
