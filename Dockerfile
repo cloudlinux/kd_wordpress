@@ -18,6 +18,7 @@ RUN apt-key adv --keyserver hkp://pgp.mit.edu:80 --recv-keys 573BFD6B3D8FBC64107
                                         libsqlite3-0 \
                                         libxml2 \
                                         xz-utils \
+                                        unzip \
     && rm -rf /var/lib/apt/lists/* \
     && sed -i -e "s/keepalive_timeout\s*65/keepalive_timeout 15/" \
               -e "/keepalive_timeout/a \\\tclient_max_body_size 100m;" \
@@ -103,6 +104,7 @@ RUN set -ex && cd /usr/local/etc \
     && cd /usr/src/runit && make -j"$(nproc)" && make install && make clean && rm -rf /usr/src/runit
 
 ENV WORDPRESS_VERSION 4.6.1
+ENV WORDPRESS_MAIL_VERSION 0.9.6
 ENV WORDPRESS_SHA1 027e065d30a64720624a7404a1820e6c6fff1202
 
 WORKDIR /var/www/html
@@ -126,6 +128,9 @@ RUN apt-get update -q && DEBIAN_FRONTEND=noninteractive apt-get install -y libpn
     && rm wordpress.tar.gz \
     && cp -pr /tmp/wordpress/. /var/www/html/ \
     && rm -r /tmp/wordpress \
+    && curl -fSL https://downloads.wordpress.org/plugin/wp-mail-smtp.${WORDPRESS_MAIL_VERSION}.zip -o /tmp/wp-mail-smtp.zip \
+    && unzip /tmp/wp-mail-smtp.zip -d /var/www/html/wp-content/plugins/ \
+    && rm /tmp/wp-mail-smtp.zip \
     && chown -R www-data:www-data /var/www/html/ \
     && mkdir /run/php && chown -R www-data:www-data /run/php \
     && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
